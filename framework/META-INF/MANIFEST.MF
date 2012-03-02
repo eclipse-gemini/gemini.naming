@@ -1,11 +1,11 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Gemini Naming (Incubation)
+Bundle-Name: Gemini Naming
 Bundle-SymbolicName: org.eclipse.gemini.naming
 Bundle-Vendor: Eclipse.org
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.0.M02
 Bundle-Activator: org.eclipse.gemini.naming.Activator
-Bundle-Description: Gemini Naming bundle (Incubation)
+Bundle-Description: Gemini Naming bundle
 Bundle-Category: jndi
 Export-Package: org.eclipse.gemini.naming,
  org.osgi.service.jndi
