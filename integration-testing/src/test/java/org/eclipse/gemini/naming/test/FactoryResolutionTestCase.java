@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Oracle.
+ * Copyright (c) 2012 Oracle.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution. 
@@ -19,16 +19,25 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.management.ManagementFactory;
 import java.net.ConnectException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.management.MBeanServer;
+import javax.management.remote.JMXConnectorServer;
+import javax.management.remote.JMXConnectorServerFactory;
+import javax.management.remote.JMXServiceURL;
 import javax.naming.CommunicationException;
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -383,6 +392,52 @@ public class FactoryResolutionTestCase extends NamingTestCase {
 			sysProperties.remove(Context.INITIAL_CONTEXT_FACTORY);
 		}
 	}
+    
+    /**
+     * Verify that RMI URL Context Factory can be used by default.
+     */
+    public void testRMIURLContextFactory() throws Exception {
+        MBeanServer theMBeanServer = ManagementFactory.getPlatformMBeanServer();
+		// Create the RMI registry
+		try {
+			LocateRegistry.createRegistry(1515);
+		} catch (RemoteException e) {
+			fail("Can't create registry: " + e.toString());
+		}
+        
+		// Build the connection string with fixed ports
+		StringBuilder url = new StringBuilder();
+		url.append("service:jmx:rmi://localhost:");
+		url.append(1516);
+		url.append("/jndi/rmi://localhost:");
+		url.append(1515);
+		url.append("/jmxrmi");
+		
+        JMXServiceURL serviceUrl = null;
+		try {
+			serviceUrl = new JMXServiceURL(url.toString());
+		} catch (MalformedURLException e) {
+			fail("Can't create registry: " + e.toString());
+		}
+        
+		Map<String, Object> env = new HashMap<String, Object>();
+		ClassLoader currentTCCL = Thread.currentThread().getContextClassLoader();
+        JMXConnectorServer cs = null;
+		try {
+			Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+			cs = JMXConnectorServerFactory.newJMXConnectorServer(serviceUrl, env, theMBeanServer);
+			cs.start();
+			System.out.println("Start MBean JMX registry with ports: registry=" + 1515 + ", server=" + 1516);
+            assertTrue(cs.isActive());
+		} catch (IOException e) {
+			fail("Can't create registry: " + e.toString());
+		} finally {
+			Thread.currentThread().setContextClassLoader(currentTCCL);
+            if (cs != null) {
+                cs.stop();
+            }
+		}
+    }
 	
 	// Stub implementations of JNDI factories used for simpler unit testing
 	static class TestContextFactoryBuilder implements InitialContextFactoryBuilder {

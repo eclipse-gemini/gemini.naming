@@ -92,7 +92,13 @@ public class ActivatorTestCase extends TestCase {
                 						  JNDIProviderAdmin.class.getName(),
                 						  SecurityAwareProviderAdminImpl.class, 
                 						  null);
-				
+		// expect the rmiURLContextFactory service registration
+		Hashtable<String, Object> props = new Hashtable<String, Object>();
+        props.put(JNDIConstants.JNDI_URLSCHEME, "rmi");
+		setServiceRegistrationExpectation(mockSupport, bundleContextMock, 
+										  ObjectFactory.class.getName(),
+										  ClassLoader.getSystemClassLoader().loadClass("com.sun.jndi.url.rmi.rmiURLContextFactory"), 
+                						  props);				
 		
 		mockSupport.replayAll();
 		

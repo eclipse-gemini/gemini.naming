@@ -48,11 +48,13 @@ import org.osgi.service.jndi.JNDIProviderAdmin;
 public class Activator implements BundleActivator {
 
 	private static final String					OSGI_URL_SCHEME					= "osgi";
+	private static final String					RMI_URL_SCHEME					= "rmi";
+	private static final String					RMI_URL_CONTEXT_FACTORY			= "com.sun.jndi.url.rmi.rmiURLContextFactory";
 	
 	private static Logger logger = Logger.getLogger(Activator.class.getName());
 
 	private BundleContext						m_bundleContext					= null;
-	private final List                          m_listOfServiceRegistrations = new LinkedList();
+	private final List<ServiceRegistration>        m_listOfServiceRegistrations = new LinkedList<ServiceRegistration>();
 
 	private CloseableProviderAdmin	m_providerAdminService;
 	private ContextManagerServiceFactoryImpl m_contextManagerServiceFactory;
@@ -110,7 +112,7 @@ public class Activator implements BundleActivator {
 		m_providerAdminService.close();
 
 		// unregister all the JNDI services registered by this Activator
-		Iterator iterator = m_listOfServiceRegistrations.iterator();
+		Iterator<ServiceRegistration> iterator = m_listOfServiceRegistrations.iterator();
 		while(iterator.hasNext()) {
 			ServiceRegistration serviceRegistration = 
 				(ServiceRegistration)iterator.next();
@@ -215,7 +217,7 @@ public class Activator implements BundleActivator {
 	 * 
 	 */
 	private void registerOSGiURLContextFactory() {
-		Hashtable serviceProperties = new Hashtable();
+		Hashtable<Object, Object> serviceProperties = new Hashtable<Object, Object>();
 		serviceProperties.put(JNDIConstants.JNDI_URLSCHEME, OSGI_URL_SCHEME);
 
 		ServiceRegistration serviceRegistration = 
@@ -238,6 +240,25 @@ public class Activator implements BundleActivator {
 					                        new DefaultRuntimeInitialContextFactoryBuilder(), 
 					                        null);
 		m_listOfServiceRegistrations.add(serviceRegistration);
+		
+		Hashtable<Object, Object> props = new Hashtable<Object, Object>();
+        props.put(JNDIConstants.JNDI_URLSCHEME, RMI_URL_SCHEME);
+		try {
+			ServiceRegistration rmiRegistration = 
+				m_bundleContext.registerService(ObjectFactory.class.getName(),
+												ClassLoader.getSystemClassLoader().loadClass(RMI_URL_CONTEXT_FACTORY).newInstance(),
+												props);
+			m_listOfServiceRegistrations.add(rmiRegistration);
+		}
+		catch(ClassNotFoundException e) {
+			logger.log(Level.SEVERE, RMI_URL_CONTEXT_FACTORY + " cannot be found through the system classloader.", e);
+		}
+		catch(InstantiationException e) {
+			logger.log(Level.SEVERE, "Exception occurred while instantiating " + RMI_URL_CONTEXT_FACTORY, e);
+		}
+		catch(IllegalAccessException e) {
+			logger.log(Level.SEVERE, "Exception occured while instantiating " + RMI_URL_CONTEXT_FACTORY, e);
+		}
 	}
 	
 	
