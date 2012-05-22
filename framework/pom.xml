@@ -4,14 +4,13 @@
   <groupId>org.eclipse.gemini.naming</groupId>
   <artifactId>org.eclipse.gemini.naming</artifactId>
   <packaging>eclipse-plugin</packaging>
-  <version>1.0.0.RELEASE</version>
   <name>Gemini Naming Bundle</name>
   <url>http://maven.apache.org</url>
 
    <parent>
       <groupId>org.eclipse.gemini.naming</groupId>
       <artifactId>org.eclipse.gemini.naming.parent</artifactId>
-      <version>1.0.0.RELEASE</version>
+      <version>1.0.1-SNAPSHOT</version>
    </parent>
 
    <build>
