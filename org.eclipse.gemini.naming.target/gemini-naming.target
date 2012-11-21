@@ -9,7 +9,7 @@
 		</location>
 		<location includeAllPlatforms="false" includeMode="planner" includeSource="false" type="InstallableUnit">
 			<unit id="osgi.enterprise" version="4.2.0.v201108120515"/>
-			<repository location="http://download.eclipse.org/tools/orbit/downloads/drops/S20111018035124/repository/"/>
+			<repository location="http://download.eclipse.org/tools/orbit/downloads/drops/R20120526062928/repository/"/>
 		</location>
 	</locations>
 </target>
