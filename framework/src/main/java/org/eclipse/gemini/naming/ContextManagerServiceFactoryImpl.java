@@ -56,10 +56,14 @@ class ContextManagerServiceFactoryImpl implements ServiceFactory {
 	
 	protected void closeAll() {
 		synchronized(m_mapOfManagers) {
-			Iterator iterator = m_mapOfManagers.keySet().iterator();
+			Iterator iterator = m_mapOfManagers.entrySet().iterator();
 			while(iterator.hasNext()) {
-				Bundle bundleKey = (Bundle)iterator.next();
-				closeContextManager(bundleKey);
+				Map.Entry currentMapEntry = (Map.Entry) iterator.next();
+				Object currentMapEntryValue = currentMapEntry.getValue();
+				if (currentMapEntryValue != null){
+					((CloseableContextManager)currentMapEntryValue).close();
+					iterator.remove();
+				}
 			}
 		}
 	}
