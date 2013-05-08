@@ -13,7 +13,7 @@
   <groupId>org.eclipse.gemini.naming</groupId>
   <artifactId>org.eclipse.gemini.naming.parent</artifactId>
   <packaging>pom</packaging>
-  <version>1.0.2-SNAPSHOT</version>
+  <version>1.0.2.RELEASE</version>
   <name>Gemini Naming parent project</name>
   <url>http://maven.apache.org</url>
 
