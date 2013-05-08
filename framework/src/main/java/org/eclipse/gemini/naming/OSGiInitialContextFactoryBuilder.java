@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Oracle.
+ * Copyright (c) 2010, 2013 Oracle.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution. 
@@ -15,10 +15,9 @@
 
 package org.eclipse.gemini.naming;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -667,10 +666,9 @@ class OSGiInitialContextFactoryBuilder implements
 			try {
 				URL propertiesURL = bundle.getResource(JNDI_PROPERTIES_FILE_NAME);
 				if (propertiesURL != null) {
-					File jndiPropertiesFile = (File) propertiesURL.getContent();
-					FileInputStream userDefinedPropertiesStream = null;
+					InputStream userDefinedPropertiesStream = null;
 					try {
-						userDefinedPropertiesStream = new FileInputStream(jndiPropertiesFile);
+						userDefinedPropertiesStream = propertiesURL.openStream();
 						Properties fileDefinedJndiProperties = new Properties();
 						fileDefinedJndiProperties.load(userDefinedPropertiesStream);
 						return fileDefinedJndiProperties; 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Oracle.
+ * Copyright (c) 2012, 2013 Oracle.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution. 
@@ -15,16 +15,12 @@
  
 package org.eclipse.gemini.naming.test;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLStreamHandler;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.util.Dictionary;
@@ -32,7 +28,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.management.MBeanServer;
 import javax.management.remote.JMXConnectorServer;
@@ -351,24 +346,8 @@ public class FactoryResolutionTestCase extends NamingTestCase {
 		ServiceRegistration serviceRegistration = 
 			bundleContext.registerService(interfaceNames, initialContextFactory, null);
 		
-		// create and setup a temp file for testing
-		File jndiPropertiesFile = File.createTempFile("jndi", "properties");
-		FileOutputStream outputStream = new FileOutputStream(jndiPropertiesFile);
-		Properties tempProperties = new Properties();
-		tempProperties.put(Context.INITIAL_CONTEXT_FACTORY, TestContextFactory.class.getName());
-		tempProperties.store(outputStream, "test properties file");
-
-		ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
 		InitialContext context = null;
 		try {
-			URL testURL = 
-				new URL("", "", -1, "", new TestURLStreamHandler(jndiPropertiesFile));
-			
-			final TestClassLoader testClassLoader = new TestClassLoader(testURL);
-			// set context classloader that can provide the jndi.properties file
-			Thread.currentThread().setContextClassLoader(testClassLoader);
-			
-			//System.setProperty(Context.INITIAL_CONTEXT_FACTORY, "this.package.doesNotExist.Factory");
 			Hashtable environment = new Hashtable();
 			environment.put("osgi.service.jndi.bundleContext", bundleContext);
 			context = new InitialContext(environment);
@@ -378,18 +357,6 @@ public class FactoryResolutionTestCase extends NamingTestCase {
 			context.close();
 			
 			serviceRegistration.unregister();
-			
-			// clean up context classloader
-			Thread.currentThread().setContextClassLoader(oldClassLoader);
-			
-			if (jndiPropertiesFile != null) {
-				// clean up temp file
-				jndiPropertiesFile.delete();
-			}
-			
-			// clean up system property
-			Properties sysProperties = System.getProperties();
-			sysProperties.remove(Context.INITIAL_CONTEXT_FACTORY);
 		}
 	}
     
@@ -583,152 +550,6 @@ public class FactoryResolutionTestCase extends NamingTestCase {
 		}
 
 		public void unbind(Name var0) throws NamingException {
-		}
-		
-	}
-	
-	
-	private static class TestURLStreamHandler extends URLStreamHandler {
-		private final File m_propertiesFile;
-		
-		TestURLStreamHandler(File propertiesFile) {
-			m_propertiesFile = propertiesFile;
-		}
-		protected URLConnection openConnection(URL var0) throws IOException {
-			return new URLConnection(null) {
-				public void connect() throws IOException {
-					// no-op 
-				}
-
-				public Object getContent() throws IOException {
-					return m_propertiesFile;
-				}
-			};
-		}
-		
-	}
-	
-	private static class TestClassLoader extends ClassLoader implements BundleReference {
-
-		private final URL m_fileURL;
-		
-		TestClassLoader(URL fileURL) {
-			m_fileURL = fileURL;
-		}
-		
-		public Bundle getBundle() {
-			return new TestBundle() {
-				public URL getResource(String name) {
-					if(name.equals("jndi.properties")) {
-						return m_fileURL;
-					} 
-					
-					return null;
-				}
-				
-			};
-		}
-		
-	}
-	
-	private static class TestBundle implements Bundle {
-
-		public Enumeration findEntries(String path, String filePattern,
-				boolean recurse) {
-			return null;
-		}
-
-		public BundleContext getBundleContext() {
-			return null;
-		}
-
-		public long getBundleId() {
-			return 0;
-		}
-
-		public URL getEntry(String path) {
-			return null;
-		}
-
-		public Enumeration getEntryPaths(String path) {
-			return null;
-		}
-
-		public Dictionary getHeaders() {
-			return null;
-		}
-
-		public Dictionary getHeaders(String locale) {
-			return null;
-		}
-
-		public long getLastModified() {
-			return 0;
-		}
-
-		public String getLocation() {
-			return null;
-		}
-
-		public ServiceReference[] getRegisteredServices() {
-			return null;
-		}
-
-		public URL getResource(String name) {
-			return null;
-		}
-
-		public Enumeration getResources(String name) throws IOException {
-			return null;
-		}
-
-		public ServiceReference[] getServicesInUse() {
-			return null;
-		}
-
-		public Map getSignerCertificates(int signersType) {
-			return null;
-		}
-
-		public int getState() {
-			return 0;
-		}
-
-		public String getSymbolicName() {
-			return null;
-		}
-
-		public Version getVersion() {
-			return null;
-		}
-
-		public boolean hasPermission(Object permission) {
-			return false;
-		}
-
-		public Class loadClass(String name) throws ClassNotFoundException {
-			return null;
-		}
-
-		public void start() throws BundleException {
-		}
-
-		public void start(int options) throws BundleException {
-		}
-
-		public void stop() throws BundleException {
-		}
-
-		public void stop(int options) throws BundleException {
-		}
-
-		public void uninstall() throws BundleException {
-		}
-
-		public void update() throws BundleException {
-		}
-
-		public void update(InputStream input) throws BundleException {
 		}
 		
 	}
