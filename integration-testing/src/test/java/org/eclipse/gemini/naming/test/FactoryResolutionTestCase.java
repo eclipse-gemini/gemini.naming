@@ -18,6 +18,7 @@ package org.eclipse.gemini.naming.test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.InvocationTargetException;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -41,6 +42,7 @@ import javax.naming.NameNotFoundException;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.NoInitialContextException;
 import javax.naming.Reference;
 import javax.naming.Referenceable;
 import javax.naming.StringRefAddr;
@@ -405,7 +407,37 @@ public class FactoryResolutionTestCase extends NamingTestCase {
             }
 		}
     }
-	
+
+	/**
+	 * Verifies that caller bundle context will be resolved even when reflection is used.
+	 *
+	 * @throws Exception
+	 */
+	public void testCallerBundleContextWhenReflectionIsUsed() throws Exception {
+		Hashtable environment = new Hashtable();
+		environment.put(Context.INITIAL_CONTEXT_FACTORY,
+				"com.sun.jndi.rmi.registry.RegistryContextFactory");
+
+		// verify that context can be created without any errors
+		Context context = null;
+		ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+		try {
+			Thread.currentThread().setContextClassLoader(null);
+			context = InitialContext.class.getConstructor(Hashtable.class).newInstance(environment);
+			assertTrue(context != null);
+
+			context = new InitialContext(environment);
+			assertTrue(context != null);
+		} catch(InvocationTargetException e) {
+			if (e.getCause() instanceof NoInitialContextException) {
+				fail("NoInitialContextException should not happen.");
+			}
+		} finally {
+			context.close();
+			Thread.currentThread().setContextClassLoader(oldClassLoader);
+		}
+	}
+
 	// Stub implementations of JNDI factories used for simpler unit testing
 	static class TestContextFactoryBuilder implements InitialContextFactoryBuilder {
 		private final Context m_context;

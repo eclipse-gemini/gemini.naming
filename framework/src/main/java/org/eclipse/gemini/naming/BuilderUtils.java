@@ -186,31 +186,33 @@ class BuilderUtils {
 			for(int i = 0; callStack != null && i < callStack.length; i++) {
 				if(callStack[i].getName().equals(namingClassType)) {
 					indexOfConstructor = i;
+					break;
 				}
 			}
-			
+
 			// the next stack frame should include the caller of the InitialContext constructor
-			if ((indexOfConstructor >= 0)
-					&& ((indexOfConstructor + 1) < callStack.length)) {
-				final Class clientClass = callStack[indexOfConstructor + 1];
-				ClassLoader clientClassLoader = null;
-				try {
-					clientClassLoader = 
-						(ClassLoader)SecurityUtils.invokePrivilegedAction(new PrivilegedExceptionAction() {
-							public Object run() throws Exception {
-								return clientClass.getClassLoader();
-							}
-						});
-				} catch (Exception e) {
-					logger.log(Level.FINE, "Exception occurred while trying to obtain the client classloader.",
-							   e);
-				}
-					
-				if(clientClassLoader instanceof BundleReference) {
-					return getBundleContextFromClassLoader(clientClassLoader);
+			if (indexOfConstructor >= 0) {
+				for (int i = indexOfConstructor + 1; i < callStack.length; i++) {
+					final Class clientClass = callStack[i];
+					ClassLoader clientClassLoader = null;
+					try {
+						clientClassLoader =
+							(ClassLoader)SecurityUtils.invokePrivilegedAction(new PrivilegedExceptionAction() {
+								public Object run() throws Exception {
+									return clientClass.getClassLoader();
+								}
+							});
+					} catch (Exception e) {
+						logger.log(Level.FINE, "Exception occurred while trying to obtain the client classloader.",
+							e);
+					}
+
+					if(clientClassLoader instanceof BundleReference) {
+						return getBundleContextFromClassLoader(clientClassLoader);
+					}
 				}
 			}
-			
+
 			return null;
 		}
 		
