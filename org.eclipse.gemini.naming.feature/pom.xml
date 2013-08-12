@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.eclipse.gemini.naming</groupId>
 		<artifactId>org.eclipse.gemini.naming.parent</artifactId>
-		<version>1.0.3-SNAPSHOT</version>
+		<version>1.0.3.RELEASE</version>
 	</parent>
 
 	<artifactId>org.eclipse.gemini.naming.feature</artifactId>

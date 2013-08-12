@@ -2,7 +2,7 @@
 <feature
 	id="org.eclipse.gemini.naming.feature"
 	label="%featureName"
-	version="1.0.3.qualifier"
+	version="1.0.3.RELEASE"
 	provider-name="%providerName"
 	image="eclipse_update_120.jpg">
 
