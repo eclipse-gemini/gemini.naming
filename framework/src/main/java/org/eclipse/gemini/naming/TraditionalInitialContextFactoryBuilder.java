@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Oracle.
+ * Copyright (c) 2010, 2013 Oracle.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution. 
@@ -26,6 +26,7 @@ import javax.naming.NamingException;
 import javax.naming.NoInitialContextException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
+import javax.naming.ldap.LdapContext;
 import javax.naming.spi.InitialContextFactory;
 import javax.naming.spi.InitialContextFactoryBuilder;
 
@@ -98,7 +99,9 @@ class TraditionalInitialContextFactoryBuilder implements InitialContextFactoryBu
 							final TraditionalContextInvocationHandler handler = 
 								new TraditionalContextInvocationHandler(serviceRef, newInitialContext, clientBundleContext);
 							// create the correct proxy
-							if(newInitialContext instanceof DirContext) {
+							if (newInitialContext instanceof LdapContext) {
+								return (LdapContext)Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[] {LdapContext.class}, handler);
+							} else if(newInitialContext instanceof DirContext) {
 								return (DirContext)Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[] {DirContext.class}, handler);
 							} else {
 								return (Context)Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[] {Context.class}, handler);

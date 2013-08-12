@@ -12,6 +12,7 @@ Export-Package: org.eclipse.gemini.naming,
 Import-Package: javax.naming,
  javax.naming.directory,
  javax.naming.spi,
+ javax.naming.ldap,
  org.osgi.framework,
  org.osgi.service.jndi,
  org.osgi.util.tracker

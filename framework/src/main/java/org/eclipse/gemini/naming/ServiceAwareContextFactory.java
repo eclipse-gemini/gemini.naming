@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Oracle.
+ * Copyright (c) 2010, 2013 Oracle.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution. 
@@ -27,6 +27,7 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.NoInitialContextException;
 import javax.naming.directory.DirContext;
+import javax.naming.ldap.LdapContext;
 import javax.naming.spi.InitialContextFactory;
 
 class ServiceAwareContextFactory {
@@ -44,8 +45,14 @@ class ServiceAwareContextFactory {
 	
 	static DirContext createServiceAwareDirContextWrapper(InitialContextFactory factory, DirContext internalContext, FactoryManager manager) {
 		return (DirContext) Proxy.newProxyInstance(ServiceAwareContextFactory.class.getClassLoader(),
-												   new Class[] {DirContext.class}, 
-												   new DefaultServiceAwareInvocationHandler(factory, internalContext, manager));
+												new Class[] {DirContext.class},
+												new DefaultServiceAwareInvocationHandler(factory, internalContext, manager));
+	}
+
+	static LdapContext createServiceAwareLdapContextWrapper(InitialContextFactory factory, LdapContext internalContext, FactoryManager manager) {
+		return (LdapContext) Proxy.newProxyInstance(ServiceAwareContextFactory.class.getClassLoader(),
+												new Class[] {LdapContext.class},
+												new DefaultServiceAwareInvocationHandler(factory, internalContext, manager));
 	}
 
 	private static class DefaultServiceAwareInvocationHandler implements InvocationHandler {

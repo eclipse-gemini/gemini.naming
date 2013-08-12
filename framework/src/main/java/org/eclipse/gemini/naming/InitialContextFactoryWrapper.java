@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Oracle.
+ * Copyright (c) 2010, 2013 Oracle.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution. 
@@ -18,6 +18,7 @@ package org.eclipse.gemini.naming;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
+import javax.naming.ldap.LdapContext;
 import javax.naming.spi.InitialContextFactory;
 import java.util.Hashtable;
 
@@ -39,7 +40,11 @@ class InitialContextFactoryWrapper implements InitialContextFactory {
 		final Context contextToReturn = 
 			m_initialContextFactory.getInitialContext(environment);
 
-		if(contextToReturn instanceof DirContext) {
+		if (contextToReturn instanceof LdapContext) {
+			final LdapContextWrapperImpl ldapContextWrapper = new LdapContextWrapperImpl((LdapContext)contextToReturn, m_factoryManager);
+			setupFactoryAssociation(ldapContextWrapper);
+			return ServiceAwareContextFactory.createServiceAwareLdapContextWrapper(m_initialContextFactory, ldapContextWrapper, m_factoryManager);
+		} else if(contextToReturn instanceof DirContext) {
 			final DirContextWrapperImpl dirContextWrapper = new DirContextWrapperImpl((DirContext)contextToReturn, m_factoryManager);
 			setupFactoryAssociation(dirContextWrapper);
 			return ServiceAwareContextFactory.createServiceAwareDirContextWrapper(m_initialContextFactory, dirContextWrapper, m_factoryManager);

@@ -43,16 +43,26 @@ import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.NoInitialContextException;
+import javax.naming.NotContextException;
 import javax.naming.Reference;
 import javax.naming.Referenceable;
 import javax.naming.StringRefAddr;
+import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.ModificationItem;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.naming.spi.InitialContextFactory;
 import javax.naming.spi.InitialContextFactoryBuilder;
 import javax.naming.spi.NamingManager;
 import javax.naming.spi.ObjectFactory;
 import javax.naming.spi.ObjectFactoryBuilder;
+import javax.naming.ldap.Control;
+import javax.naming.ldap.ExtendedRequest;
+import javax.naming.ldap.ExtendedResponse;
+import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
 
 import org.osgi.framework.*;
 
@@ -433,8 +443,43 @@ public class FactoryResolutionTestCase extends NamingTestCase {
 				fail("NoInitialContextException should not happen.");
 			}
 		} finally {
-			context.close();
+			if (context != null) {
+				context.close();
+			}
 			Thread.currentThread().setContextClassLoader(oldClassLoader);
+		}
+	}
+
+	/**
+	 * Verifies access to the LDAP context factory provided by the
+	 * JDK.  This test does not verify any LDAP connectivity, it merely
+	 * ensures that the JDK-provided implementation is available in an OSGi
+	 * environment.
+	 *
+	 * @throws Exception
+	 */
+	public void testAccessToJDK_InitialLDAPContext() throws Exception {
+		InitialContextFactory initialContextFactory = new TestContextFactory(new TestLdapContext());
+		String[] interfaceNames = { InitialContextFactory.class.getName(), TestContextFactory.class.getName() };
+
+		// register context factory
+		ServiceRegistration serviceRegistration =
+			bundleContext.registerService(interfaceNames, initialContextFactory, null);
+
+		Hashtable environment = new Hashtable();
+		environment.put(Context.INITIAL_CONTEXT_FACTORY,
+				        "org.eclipse.gemini.naming.test.FactoryResolutionTestCase$TestContextFactory");
+		InitialLdapContext ldapContext = null;
+		try {
+			ldapContext = new InitialLdapContext(environment, new Control[0]);
+			ldapContext.getRequestControls();
+		} catch (NotContextException e) {
+			fail("NotContextException should not happen.");
+		} finally {
+			if (ldapContext != null) {
+				ldapContext.close();
+			}
+			serviceRegistration.unregister();
 		}
 	}
 
@@ -692,6 +737,158 @@ public class FactoryResolutionTestCase extends NamingTestCase {
 		}
 			
 	}
-	
-	
+
+	private static class TestLdapContext extends TestContext implements LdapContext {
+
+		public Attributes getAttributes(Name name) throws NamingException {
+			return null;
+		}
+
+		public Attributes getAttributes(String name) throws NamingException {
+			return null;
+		}
+
+		public Attributes getAttributes(Name name, String[] attrIds)
+				throws NamingException {
+			return null;
+		}
+
+		public Attributes getAttributes(String name, String[] attrIds)
+				throws NamingException {
+			return null;
+		}
+
+		public void modifyAttributes(Name name, int mod_op, Attributes attrs)
+				throws NamingException {
+		}
+
+		public void modifyAttributes(String name, int mod_op, Attributes attrs)
+				throws NamingException {
+		}
+
+		public void modifyAttributes(Name name, ModificationItem[] mods)
+				throws NamingException {
+		}
+
+		public void modifyAttributes(String name, ModificationItem[] mods)
+				throws NamingException {
+		}
+
+		public void bind(Name name, Object obj, Attributes attrs)
+				throws NamingException {
+		}
+
+		public void bind(String name, Object obj, Attributes attrs)
+				throws NamingException {
+		}
+
+		public void rebind(Name name, Object obj, Attributes attrs)
+				throws NamingException {
+		}
+
+		public void rebind(String name, Object obj, Attributes attrs)
+				throws NamingException {
+		}
+
+		public DirContext createSubcontext(Name name, Attributes attrs)
+				throws NamingException {
+			return null;
+		}
+
+		public DirContext createSubcontext(String name, Attributes attrs)
+				throws NamingException {
+			return null;
+		}
+
+		public DirContext getSchema(Name name) throws NamingException {
+			return null;
+		}
+
+		public DirContext getSchema(String name) throws NamingException {
+			return null;
+		}
+
+		public DirContext getSchemaClassDefinition(Name name)
+				throws NamingException {
+			return null;
+		}
+
+		public DirContext getSchemaClassDefinition(String name)
+				throws NamingException {
+			return null;
+		}
+
+		public NamingEnumeration<SearchResult> search(Name name,
+				Attributes matchingAttributes, String[] attributesToReturn)
+				throws NamingException {
+			return null;
+		}
+
+		public NamingEnumeration<SearchResult> search(String name,
+				Attributes matchingAttributes, String[] attributesToReturn)
+				throws NamingException {
+			return null;
+		}
+
+		public NamingEnumeration<SearchResult> search(Name name,
+				Attributes matchingAttributes) throws NamingException {
+			return null;
+		}
+
+		public NamingEnumeration<SearchResult> search(String name,
+				Attributes matchingAttributes) throws NamingException {
+			return null;
+		}
+
+		public NamingEnumeration<SearchResult> search(Name name, String filter,
+				SearchControls cons) throws NamingException {
+			return null;
+		}
+
+		public NamingEnumeration<SearchResult> search(String name,
+				String filter, SearchControls cons) throws NamingException {
+			return null;
+		}
+
+		public NamingEnumeration<SearchResult> search(Name name,
+				String filterExpr, Object[] filterArgs, SearchControls cons)
+				throws NamingException {
+			return null;
+		}
+
+		public NamingEnumeration<SearchResult> search(String name,
+				String filterExpr, Object[] filterArgs, SearchControls cons)
+				throws NamingException {
+			return null;
+		}
+
+		public ExtendedResponse extendedOperation(ExtendedRequest request)
+				throws NamingException {
+			return null;
+		}
+
+		public LdapContext newInstance(Control[] requestControls)
+				throws NamingException {
+			return null;
+		}
+
+		public void reconnect(Control[] connCtls) throws NamingException {
+		}
+
+		public Control[] getConnectControls() throws NamingException {
+			return null;
+		}
+
+		public void setRequestControls(Control[] requestControls)
+				throws NamingException {
+		}
+
+		public Control[] getRequestControls() throws NamingException {
+			return null;
+		}
+
+		public Control[] getResponseControls() throws NamingException {
+			return null;
+		}
+	}
 }
