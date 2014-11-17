@@ -17,10 +17,9 @@ package org.eclipse.gemini.naming;
 
 import java.util.Collections;
 import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,8 +39,8 @@ class ContextManagerImpl implements CloseableContextManager {
 	private final OSGiInitialContextFactoryBuilder	m_builder;
 	
 	/* list of Context implementations */
-	private final List m_listOfContexts = 
-		Collections.synchronizedList(new LinkedList());
+	private final Map<Context, Object> m_listOfContexts =
+		Collections.synchronizedMap(new WeakHashMap<Context, Object>());
 
 	ContextManagerImpl(Bundle callingBundle, BundleContext implBundleContext) {
 		// create a new builder for each client bundle
@@ -54,7 +53,7 @@ class ContextManagerImpl implements CloseableContextManager {
 	public Context newInitialContext() throws NamingException {
 		synchronized (m_builder) {
 			final Context initialContext = createNewInitialContext(new Hashtable());
-			m_listOfContexts.add(initialContext);
+			m_listOfContexts.put(initialContext, null);
 			return initialContext;
 		}
 	}
@@ -63,7 +62,7 @@ class ContextManagerImpl implements CloseableContextManager {
 			throws NamingException {
 		synchronized (m_builder) {
 			final Context initialContext = createNewInitialContext(environment);
-			m_listOfContexts.add(initialContext);
+			m_listOfContexts.put(initialContext, null);
 			return initialContext;
 		}
 	}
@@ -72,7 +71,7 @@ class ContextManagerImpl implements CloseableContextManager {
 		synchronized (m_builder) {
 			Context contextToReturn = createNewInitialContext(new Hashtable());
 			if (contextToReturn instanceof DirContext) {
-				m_listOfContexts.add(contextToReturn);
+				m_listOfContexts.put(contextToReturn, null);
 				return (DirContext) contextToReturn;
 			}
 		}
@@ -84,7 +83,7 @@ class ContextManagerImpl implements CloseableContextManager {
 		synchronized (m_builder) {
 			Context context = createNewInitialContext(environment);
 			if (context instanceof DirContext) {
-				m_listOfContexts.add(context);
+				m_listOfContexts.put(context, null);
 				return (DirContext) context;
 			}
 		}
@@ -99,17 +98,18 @@ class ContextManagerImpl implements CloseableContextManager {
 	public void close() {
 		// close known Context implementations
 		synchronized (m_listOfContexts) {
-			Iterator iterator = m_listOfContexts.iterator();
-			// call close() on all known contexts
-			while (iterator.hasNext()) {
-				Context context = (Context) iterator.next();
-				try {
-					context.close();
-				}
-				catch (NamingException e) {
-					logger.log(Level.INFO,
-							   "NamingException occurred while trying to close an existing JNDI Context",
-							    e);
+			Set<Context> iterator = m_listOfContexts.keySet();
+			if (iterator != null) {
+				// call close() on all known contexts
+				for (Context context : iterator) {
+					try {
+						context.close();
+					} catch (NamingException e) {
+						logger.log(
+								Level.INFO,
+								"NamingException occurred while trying to close an existing JNDI Context",
+								e);
+					}
 				}
 			}
 		}

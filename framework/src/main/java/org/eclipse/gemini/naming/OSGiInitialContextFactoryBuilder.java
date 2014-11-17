@@ -27,10 +27,10 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -94,7 +94,8 @@ class OSGiInitialContextFactoryBuilder implements
 	 * Map of OSGi services to a List of Contexts created by that service.  
 	 * Each service services as a key to a list of Context implementations.  
 	 */
-	private final Map m_mapOfServicesToContexts = Collections.synchronizedMap(new HashMap()); 
+	private final Map<Object, WeakHashMap<Context, Object>> m_mapOfServicesToContexts =
+			Collections.synchronizedMap(new HashMap<Object, WeakHashMap<Context, Object>>());
 	
 
 	public OSGiInitialContextFactoryBuilder(BundleContext callerBundleContext, BundleContext implBundleContext) {
@@ -231,13 +232,13 @@ class OSGiInitialContextFactoryBuilder implements
 	
 	public void associateFactoryService(Object factory, Context createdContext) {
 		if(m_mapOfServicesToContexts.containsKey(factory)) {
-			List listOfContexts = 
-				(List) m_mapOfServicesToContexts.get(factory);
-			listOfContexts.add(createdContext);
+			WeakHashMap<Context, Object> listOfContexts =
+				(WeakHashMap<Context, Object>) m_mapOfServicesToContexts.get(factory);
+			listOfContexts.put(createdContext, null);
 			m_mapOfServicesToContexts.put(factory, listOfContexts);
 		} else {
-			List listOfContexts = new LinkedList();
-			listOfContexts.add(createdContext);
+			WeakHashMap<Context, Object> listOfContexts = new WeakHashMap<Context, Object>();
+			listOfContexts.put(createdContext, null);
 			m_mapOfServicesToContexts.put(factory, listOfContexts);
 		}
 		
