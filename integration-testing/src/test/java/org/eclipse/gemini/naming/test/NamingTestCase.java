@@ -33,7 +33,7 @@ import org.springframework.osgi.test.AbstractConfigurableBundleCreatorTests;
 
 public abstract class NamingTestCase extends AbstractConfigurableBundleCreatorTests {
 
-	private static String VERSION = "1.0.4-SNAPSHOT";
+	private static String VERSION = "1.0.4.RELEASE";
 	
 	private Map m_mapOfServicesToRegistrations = 
 		new HashMap();

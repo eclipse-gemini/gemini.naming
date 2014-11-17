@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-	<feature url="features/org.eclipse.gemini.naming.feature_1.0.4.qualifier.jar" id="org.eclipse.gemini.naming.feature" version="1.0.4.qualifier">
+	<feature url="features/org.eclipse.gemini.naming.feature_1.0.4.RELEASE.jar" id="org.eclipse.gemini.naming.feature" version="1.0.4.RELEASE">
 		<category name="gemini.naming"/>
 	</feature>
 	<category-def name="gemini.naming" label="Gemini Naming"/>
