@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Oracle.
+ * Copyright (c) 2010, 2015 Oracle.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution. 
@@ -93,7 +93,9 @@ public class ContextManagerTestCase extends NamingTestCase {
 			assertEquals("Factory Manager did not return the expected factory", 
 						 expectedBindingValue, initialContext.lookup(expectedBindingName));
 		} finally {
-			initialContext.close();
+			if (initialContext != null) {
+				initialContext.close();
+			}
 		}
 		
 		// attempt the same test from the context manager service

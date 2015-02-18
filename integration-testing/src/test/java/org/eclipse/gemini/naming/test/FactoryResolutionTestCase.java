@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 Oracle.
+ * Copyright (c) 2012, 2015 Oracle.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution. 
@@ -108,7 +108,9 @@ public class FactoryResolutionTestCase extends NamingTestCase {
 		try {
 			context = new InitialContext(environment);
 		} finally {
-			context.close();
+			if (context != null) {
+				context.close();
+			}
 		}
 	}
 	
@@ -366,7 +368,9 @@ public class FactoryResolutionTestCase extends NamingTestCase {
 			assertEquals("Incorrect value returned by context factory", 
 					     expectedLookupValue, context.lookup(expectedLookupName));
 		} finally {
-			context.close();
+			if (context != null) {
+				context.close();
+			}
 			
 			serviceRegistration.unregister();
 		}
