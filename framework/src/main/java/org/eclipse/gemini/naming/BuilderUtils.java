@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2013 Oracle.
+ * Copyright (c) 2010, 2015 Oracle.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution. 
@@ -111,6 +111,7 @@ class BuilderUtils {
 	 *
 	 */
 	private static class EnvironmentPropertyStrategyImpl implements GetBundleContextStrategy {
+		@Override
 		public BundleContext getBundleContext(Hashtable environment, String namingClassType) {
 			if((environment != null) && (environment.containsKey(JNDIConstants.BUNDLE_CONTEXT))) {
 				Object result = 
@@ -131,11 +132,13 @@ class BuilderUtils {
 	 *
 	 */
 	private static class ThreadContextStrategyImpl implements GetBundleContextStrategy {
+		@Override
 		public BundleContext getBundleContext(Hashtable environment, String namingClassType) {
 			ClassLoader threadContextClassloader = null;
 			try {
 				// this code must run in a doPrivileged() block
 				threadContextClassloader = (ClassLoader)SecurityUtils.invokePrivilegedAction(new PrivilegedExceptionAction() {
+						@Override
 						public Object run() throws Exception {
 							return Thread.currentThread().getContextClassLoader();
 						}
@@ -163,6 +166,7 @@ class BuilderUtils {
 	 * 
 	 */
 	private static class CallStackStrategyImpl implements GetBundleContextStrategy {
+		@Override
 		public BundleContext getBundleContext(Hashtable environment, String namingClassType) {
 			Class[] callStack = null;
 			try {
@@ -170,6 +174,7 @@ class BuilderUtils {
 				// since JNDI clients should not have to include this permission in 
 				// order to use JNDI services.  
 				callStack = (Class[])SecurityUtils.invokePrivilegedAction(new PrivilegedExceptionAction() {
+						@Override
 						public Object run() throws Exception {
 							return new CallStackSecurityManager().getClientCallStack();
 						}
@@ -197,6 +202,7 @@ class BuilderUtils {
 					try {
 						clientClassLoader =
 							(ClassLoader)SecurityUtils.invokePrivilegedAction(new PrivilegedExceptionAction() {
+								@Override
 								public Object run() throws Exception {
 									return clientClass.getClassLoader();
 								}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Oracle.
+ * Copyright (c) 2010, 2015 Oracle.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution. 
@@ -58,11 +58,13 @@ class OSGiServiceListContext extends NotSupportedContext {
 	}
 	
 
+	@Override
 	public void close() throws NamingException {
 		// this operation is a no-op
 	}
 
 
+	@Override
 	public NamingEnumeration list(String name) throws NamingException {
 		if(name.equals("")) {
 			return new ListNamingEnumeration(m_bundleContext, 
@@ -73,6 +75,7 @@ class OSGiServiceListContext extends NotSupportedContext {
 	}
 
 
+	@Override
 	public NamingEnumeration listBindings(String name) throws NamingException {
 		if(name.equals("")) {
 			return new ListBindingsNamingEnumeration(m_bundleContext, 
@@ -84,27 +87,24 @@ class OSGiServiceListContext extends NotSupportedContext {
 	}
 
 
+	@Override
 	public Object lookup(String name) throws NamingException {
 		Long serviceId = new Long(name);
-		if(serviceId == null) {
-			throw new NameNotFoundException("Service with the name = " + name + " does not exist in this context");
-		} else {
-			if(m_mapOfServices.containsKey(serviceId)) {
-				ServiceReference serviceReference = (ServiceReference)m_mapOfServices.get(serviceId);
-				// create a proxy for this service, and return the proxy to handle
-				// service dynamics
-				ServiceProxyInfo proxyInfo = 
-					createNoRetryProxiedService(m_bundleContext, m_urlParser, serviceReference);
-				
-				if(!proxyInfo.isProxied()) {
-					logger.log(Level.WARNING, 
-							   "The service returned could not be proxied, OSGi lifecycle maintenance will not be handled by the Context Manager service");
-				}
+		if(m_mapOfServices.containsKey(serviceId)) {
+			ServiceReference serviceReference = (ServiceReference)m_mapOfServices.get(serviceId);
+			// create a proxy for this service, and return the proxy to handle
+			// service dynamics
+			ServiceProxyInfo proxyInfo =
+				createNoRetryProxiedService(m_bundleContext, m_urlParser, serviceReference);
 
-				return proxyInfo.getService();
-			} else {
-				throw new NameNotFoundException("Service with the name = " + name + " does not exist in this context");
+			if(!proxyInfo.isProxied()) {
+				logger.log(Level.WARNING,
+						   "The service returned could not be proxied, OSGi lifecycle maintenance will not be handled by the Context Manager service");
 			}
+
+			return proxyInfo.getService();
+		} else {
+			throw new NameNotFoundException("Service with the name = " + name + " does not exist in this context");
 		}
 	}
 	
@@ -198,6 +198,7 @@ class OSGiServiceListContext extends NotSupportedContext {
 			}
 		}
 
+		@Override
 		public void close() throws NamingException {
 			super.close();
 			
@@ -221,6 +222,7 @@ class OSGiServiceListContext extends NotSupportedContext {
 		}
 
 
+		@Override
 		protected boolean obtainService() {
 			m_serviceTracker.close();
 			// always return false, since servicelist proxies must not rebind to a service
@@ -229,6 +231,7 @@ class OSGiServiceListContext extends NotSupportedContext {
 	}
 	
 	private static class NoRetryInvocationHandlerFactory implements InvocationHandlerFactory {
+		@Override
 		public InvocationHandler create(BundleContext bundleContext, ServiceReference serviceReference, OSGiURLParser urlParser, Object osgiService) {
 			return new NoRetryServiceInvocationHandler(bundleContext, serviceReference, urlParser, osgiService);
 		}

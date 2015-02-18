@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Oracle.
+ * Copyright (c) 2010, 2015 Oracle.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution. 
@@ -36,6 +36,7 @@ import javax.naming.spi.InitialContextFactory;
  */
 class DefaultInitialContextFactory implements InitialContextFactory {
 
+	@Override
 	public Context getInitialContext(Hashtable environment) throws NamingException {
 		return (Context) Proxy.newProxyInstance(this.getClass().getClassLoader(),
 				                                new Class[] {Context.class}, 
@@ -52,6 +53,7 @@ class DefaultInitialContextFactory implements InitialContextFactory {
 	 */
 	private static class DefaultContextInvocationHandler implements InvocationHandler {
 
+		@Override
 		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 			// special case for close() invocation
 			if(method.getName().equals("close")) {

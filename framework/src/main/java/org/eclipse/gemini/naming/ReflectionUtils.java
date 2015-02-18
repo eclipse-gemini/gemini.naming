@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Oracle.
+ * Copyright (c) 2010, 2015 Oracle.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution. 
@@ -119,6 +119,7 @@ class ReflectionUtils {
 		ClassLoader tempLoader = null;
 		try {
 			tempLoader = (ClassLoader)SecurityUtils.invokePrivilegedAction(new PrivilegedExceptionAction() {
+				@Override
 				public Object run() throws Exception {
 					return requestedService.getClass().getClassLoader();
 				}
@@ -215,6 +216,7 @@ class ReflectionUtils {
 	}
 	
 	private static class RetryInvocationHandlerFactory implements InvocationHandlerFactory {
+		@Override
 		public InvocationHandler create(BundleContext bundleContext, ServiceReference serviceReference, OSGiURLParser urlParser, Object osgiService) {
 			return new ServiceInvocationHandler(bundleContext, 
 					                            serviceReference, 

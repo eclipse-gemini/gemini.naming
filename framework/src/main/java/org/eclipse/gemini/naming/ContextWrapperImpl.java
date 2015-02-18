@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 Oracle.
+ * Copyright (c) 2010, 2015 Oracle.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution. 
@@ -41,120 +41,149 @@ class ContextWrapperImpl implements Context {
 	}
 
 
+	@Override
 	public Object lookup(Name name) throws NamingException {
 		return getURLContextOrDefaultContext(name.toString()).lookup(name);
 	}
 
+	@Override
 	public Object lookup(String name) throws NamingException {
 		return getURLContextOrDefaultContext(name).lookup(name);
 	}
 
+	@Override
 	public void bind(Name name, Object obj) throws NamingException {
 		getURLContextOrDefaultContext(name.toString()).bind(name, obj);
 	}
 
+	@Override
 	public void bind(String name, Object obj) throws NamingException {
 		getURLContextOrDefaultContext(name).bind(name, obj);
 	}
 
+	@Override
 	public void rebind(Name name, Object obj) throws NamingException {
 		getURLContextOrDefaultContext(name.toString()).rebind(name, obj);
 	}
 
+	@Override
 	public void rebind(String name, Object obj) throws NamingException {
 		getURLContextOrDefaultContext(name).rebind(name, obj);
 	}
 
+	@Override
 	public void unbind(Name name) throws NamingException {
 		getURLContextOrDefaultContext(name.toString()).unbind(name);
 	}
 
+	@Override
 	public void unbind(String name) throws NamingException {
 		getURLContextOrDefaultContext(name).unbind(name);
 	}
 
+	@Override
 	public void rename(Name oldName, Name newName) throws NamingException {
 		getURLContextOrDefaultContext(oldName.toString()).rename(oldName, newName);
 	}
 
+	@Override
 	public void rename(String oldName, String newName) throws NamingException {
 		getURLContextOrDefaultContext(oldName).rename(oldName, newName);
 	}
 
+	@Override
 	public NamingEnumeration list(Name name) throws NamingException {
 		return getURLContextOrDefaultContext(name.toString()).list(name);
 	}
 
+	@Override
 	public NamingEnumeration list(String name) throws NamingException {
 		return getURLContextOrDefaultContext(name).list(name);
 	}
 
+	@Override
 	public NamingEnumeration listBindings(Name name) throws NamingException {
 		return getURLContextOrDefaultContext(name.toString()).listBindings(name);
 	}
 
+	@Override
 	public NamingEnumeration listBindings(String name) throws NamingException {
 		return getURLContextOrDefaultContext(name).listBindings(name);
 	}
 
+	@Override
 	public void destroySubcontext(Name name) throws NamingException {
 		getURLContextOrDefaultContext(name.toString()).destroySubcontext(name);
 	}
 
+	@Override
 	public void destroySubcontext(String name) throws NamingException {
 		getURLContextOrDefaultContext(name).destroySubcontext(name);
 	}
 
+	@Override
 	public Context createSubcontext(Name name) throws NamingException {
 		return getURLContextOrDefaultContext(name.toString()).createSubcontext(name);
 	}
 
+	@Override
 	public Context createSubcontext(String name) throws NamingException {
 		return getURLContextOrDefaultContext(name).createSubcontext(name);
 	}
 
+	@Override
 	public Object lookupLink(Name name) throws NamingException {
 		return getURLContextOrDefaultContext(name.toString()).lookupLink(name);
 	}
 
+	@Override
 	public Object lookupLink(String name) throws NamingException {
 		return getURLContextOrDefaultContext(name).lookupLink(name);
 	}
 
+	@Override
 	public NameParser getNameParser(Name name) throws NamingException {
 		return getURLContextOrDefaultContext(name.toString()).getNameParser(name);
 	}
 
+	@Override
 	public NameParser getNameParser(String name) throws NamingException {
 		return getURLContextOrDefaultContext(name).getNameParser(name);
 	}
 
+	@Override
 	public Name composeName(Name name, Name prefix) throws NamingException {
 		return getURLContextOrDefaultContext(name.toString()).composeName(name, prefix);
 	}
 
+	@Override
 	public String composeName(String name, String prefix)
 			throws NamingException {
 		return getURLContextOrDefaultContext(name).composeName(name, prefix);
 	}
 
+	@Override
 	public Object addToEnvironment(String propName, Object propVal)
 			throws NamingException {
 		return m_context.addToEnvironment(propName, propVal);
 	}
 
+	@Override
 	public Object removeFromEnvironment(String propName) throws NamingException {
 		return m_context.removeFromEnvironment(propName);
 	}
 
+	@Override
 	public Hashtable getEnvironment() throws NamingException {
 		return m_context.getEnvironment();
 	}
 
+	@Override
 	public void close() throws NamingException {
 		m_context.close();
 	}
 
+	@Override
 	public String getNameInNamespace() throws NamingException {
 		return m_context.getNameInNamespace();
 	}
@@ -235,6 +264,7 @@ class ContextWrapperImpl implements Context {
 			m_name = name;
 		}
 
+		@Override
 		public Object run() throws Exception {
 			return obtainObjectFactory(m_name);
 		}

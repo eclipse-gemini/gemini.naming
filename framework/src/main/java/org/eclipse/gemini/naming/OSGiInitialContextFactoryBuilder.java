@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2013 Oracle.
+ * Copyright (c) 2010, 2015 Oracle.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution. 
@@ -65,8 +65,7 @@ import org.osgi.util.tracker.ServiceTracker;
  * request. The builder uses the OSGi service registry to locate JNDI providers.
  * 
  */
-class OSGiInitialContextFactoryBuilder implements
-		InitialContextFactoryBuilder, ObjectFactoryBuilder, FactoryManager {
+class OSGiInitialContextFactoryBuilder implements ObjectFactoryBuilder, FactoryManager {
 
 	private static Logger logger = 
 		Logger.getLogger(OSGiInitialContextFactoryBuilder.class.getName());
@@ -107,6 +106,7 @@ class OSGiInitialContextFactoryBuilder implements
 			// since this code is the only interaction with a BundleContext
 			// context not covered by the security-aware wrapper interfaces
 			SecurityUtils.invokePrivilegedActionNoReturn(new PrivilegedExceptionAction() {
+				@Override
 				public Object run() throws Exception {
 					createServiceTrackers(m_implBundleContext);
 					return null;
@@ -123,6 +123,7 @@ class OSGiInitialContextFactoryBuilder implements
 	 * This builder implementation uses the OSGi service registry to find
 	 * matching JNDI service providers.
 	 */
+	@Override
 	public InitialContextFactory createInitialContextFactory(Hashtable environment) throws NamingException {
 		// check for valid tracker setup
 		if (m_contextFactoryServiceTracker == null) {
@@ -190,6 +191,7 @@ class OSGiInitialContextFactoryBuilder implements
 	 * matching JNDI service providers for resolving references.
 	 * 
 	 */
+	@Override
 	public ObjectFactory createObjectFactory(Object obj, Hashtable environment) throws NamingException {
 		if (m_objectFactoryServiceTracker == null) {
 			throw new NoInitialContextException("No Object factories available");
@@ -217,6 +219,7 @@ class OSGiInitialContextFactoryBuilder implements
 	 * @return a javax.naming.spi.ObjectFactory instance that supports the
 	 *         requested URL scheme, or null if no matching factory was found
 	 */
+	@Override
 	public ObjectFactory getURLContextFactory(String urlScheme) {
 		if (m_urlContextFactoryServiceTracker.getServiceReferences() != null) {
 			ServiceReference[] serviceReferences = ServiceUtils.sortServiceReferences(m_urlContextFactoryServiceTracker);
@@ -230,10 +233,10 @@ class OSGiInitialContextFactoryBuilder implements
 		return null;
 	}
 	
+	@Override
 	public void associateFactoryService(Object factory, Context createdContext) {
 		if(m_mapOfServicesToContexts.containsKey(factory)) {
-			WeakHashMap<Context, Object> listOfContexts =
-				(WeakHashMap<Context, Object>) m_mapOfServicesToContexts.get(factory);
+			WeakHashMap<Context, Object> listOfContexts = m_mapOfServicesToContexts.get(factory);
 			listOfContexts.put(createdContext, null);
 			m_mapOfServicesToContexts.put(factory, listOfContexts);
 		} else {
@@ -244,6 +247,7 @@ class OSGiInitialContextFactoryBuilder implements
 		
 	}
 
+	@Override
 	public boolean isFactoryServiceActive(Object factory) {
 		return m_mapOfServicesToContexts.containsKey(factory);
 	}
@@ -726,6 +730,7 @@ class OSGiInitialContextFactoryBuilder implements
 			super(context, clazz, null);
 		}
 
+		@Override
 		public Object addingService(ServiceReference serviceReference) {
 			if (serviceReference.getProperty(JNDIConstants.JNDI_URLSCHEME) != null) {
 				return super.addingService(serviceReference);
@@ -742,6 +747,7 @@ class OSGiInitialContextFactoryBuilder implements
 			super(context, clazz, null);
 		}
 
+		@Override
 		public Object addingService(ServiceReference serviceReference) {
 			if (serviceReference.getProperty(JNDIConstants.JNDI_URLSCHEME) == null) {
 				return super.addingService(serviceReference);
@@ -758,10 +764,12 @@ class OSGiInitialContextFactoryBuilder implements
 			super(context, clazz, null);
 		}
 
+		@Override
 		public void removedService(ServiceReference reference, Object service) {
 			handleRemovedService(reference, service);
 		}
 
+		@Override
 		public Object addingService(ServiceReference reference) {
 			return handleAddingService(reference);
 		}
@@ -799,6 +807,7 @@ class OSGiInitialContextFactoryBuilder implements
 			m_objectFactory = objectFactory;
 		}
 		
+		@Override
 		public Object getObjectInstance(Object refInfo, Name name,
 				Context context, Hashtable environment) throws Exception {
 
@@ -841,6 +850,7 @@ class OSGiInitialContextFactoryBuilder implements
 		}
 		
 
+		@Override
 		public Object getObjectInstance(Object refInfo, Name name, 
 				                        Context context, Hashtable environment, Attributes attributes) throws Exception {
 			if (m_dirObjectFactory != null) {
@@ -876,6 +886,7 @@ class OSGiInitialContextFactoryBuilder implements
 	 */
 	private final class NoFactoryNameSpecifiedObjectFactory implements ObjectFactory {
 
+		@Override
 		public Object getObjectInstance(Object refInfo, Name name, Context context, Hashtable environment) throws Exception {
 			if(refInfo == null) {
 				return null;
@@ -911,6 +922,7 @@ class OSGiInitialContextFactoryBuilder implements
 	
 	private final class NoFactoryNameSpecifiedDirObjectFactory implements DirObjectFactory {
 
+		@Override
 		public Object getObjectInstance(Object refInfo, Name name, Context context, Hashtable environment, Attributes attributes) throws Exception {
 			if(refInfo == null) {
 				return null;
@@ -940,6 +952,7 @@ class OSGiInitialContextFactoryBuilder implements
 			return null;
 		}
 
+		@Override
 		public Object getObjectInstance(Object refInfo, Name name, Context context, Hashtable environment) throws Exception {
 			// no-op for this DirObjectFactory
 			return null;
@@ -964,6 +977,7 @@ class OSGiInitialContextFactoryBuilder implements
 	 */
 	private final class FactoryNameSpecifiedObjectFactory implements ObjectFactory {
 
+		@Override
 		public Object getObjectInstance(Object refInfo, Name name, Context context, Hashtable environment) throws Exception {
 			Object objectToResolve = getObjectToResolve(refInfo);
 			if(objectToResolve instanceof Reference) {
@@ -992,6 +1006,7 @@ class OSGiInitialContextFactoryBuilder implements
 	
 	private final class FactoryNameSpecifiedDirObjectFactory implements DirObjectFactory {
 
+		@Override
 		public Object getObjectInstance(Object refInfo, Name name, Context context, Hashtable environment, Attributes attributes) throws Exception {
 			Object objectToResolve = getObjectToResolve(refInfo);
 			if(objectToResolve instanceof Reference) {
@@ -1016,6 +1031,7 @@ class OSGiInitialContextFactoryBuilder implements
 			return null;
 		}
 
+		@Override
 		public Object getObjectInstance(Object refInfo, Name name, Context context, Hashtable environment) throws Exception {
 			// always return null, since this DirObjectFactory is a wrapper type
 			return null;
@@ -1025,6 +1041,7 @@ class OSGiInitialContextFactoryBuilder implements
 	
 	
 	private class NoReferenceObjectFactory implements ObjectFactory {
+		@Override
 		public Object getObjectInstance(Object refInfo, Name name, Context context, Hashtable environment) throws Exception {
 			// first query all known ObjectFactoryBuilder services to resolve this reference
 			Object resultFromBuilders = 
@@ -1049,6 +1066,7 @@ class OSGiInitialContextFactoryBuilder implements
 	
 	private class NoReferenceDirObjectFactory implements DirObjectFactory {
 
+		@Override
 		public Object getObjectInstance(Object refInfo, Name name, Context context, Hashtable environment, Attributes attributes) throws Exception {
 			final Object resultFromBuilders = resolveDirObjectUsingBuilders(refInfo, name, context, environment, attributes);
 			if(resultFromBuilders != null) {
@@ -1064,6 +1082,7 @@ class OSGiInitialContextFactoryBuilder implements
 			return null;
 		}
 
+		@Override
 		public Object getObjectInstance(Object refInfo, Name name, Context context, Hashtable environment) throws Exception {
 			// no-op for this DirObjectFactory
 			return null;
@@ -1081,10 +1100,12 @@ class OSGiInitialContextFactoryBuilder implements
 			m_builder = builder;
 		}
 
+		@Override
 		public InitialContextFactoryBuilder getBuilder() {
 			return m_builder;
 		}
 
+		@Override
 		public Context getInitialContext(Hashtable environment) throws NamingException {
 			return m_factory.getInitialContext(environment);
 		}

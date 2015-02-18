@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Oracle.
+ * Copyright (c) 2010, 2015 Oracle.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution. 
@@ -44,25 +44,30 @@ class SecurityAwareContextManagerImpl implements CloseableContextManager {
 	}
 	
 	
+	@Override
 	public Context newInitialContext() throws NamingException {
 		return (Context)invokePrivilegedAction(new NewInitialContextAction());
 	}
 	
 
+	@Override
 	public Context newInitialContext(Map environment) throws NamingException {
 		return (Context)invokePrivilegedAction(new NewInitialContextWithEnvironmentAction(environment));
 	}
 
 	
+	@Override
 	public DirContext newInitialDirContext() throws NamingException {
 		return (DirContext)invokePrivilegedAction(new NewInitialDirContextAction());
 	}
 
 	
+	@Override
 	public DirContext newInitialDirContext(Map environment) throws NamingException {
 		return (DirContext)invokePrivilegedAction(new NewInitialDirContextWithEnvironmentAction(environment));
 	}
 	
+	@Override
 	public void close() {
 		invokePrivilegedActionWithoutReturn(new CloseContextManagerAction());
 	}
@@ -105,6 +110,7 @@ class SecurityAwareContextManagerImpl implements CloseableContextManager {
 	
 	// actions for each of the operations supported by the JNDIContextManager service
 	private class NewInitialContextAction implements PrivilegedExceptionAction {
+		@Override
 		public Object run() throws Exception {
 			return m_contextManager.newInitialContext();
 		}
@@ -118,6 +124,7 @@ class SecurityAwareContextManagerImpl implements CloseableContextManager {
 			m_environment = environment;
 		}
 		
+		@Override
 		public Object run() throws Exception {
 			return m_contextManager.newInitialContext(m_environment);
 		}
@@ -125,6 +132,7 @@ class SecurityAwareContextManagerImpl implements CloseableContextManager {
 	
 	
 	private class NewInitialDirContextAction implements PrivilegedExceptionAction {
+		@Override
 		public Object run() throws Exception {
 			return m_contextManager.newInitialDirContext();
 		}
@@ -137,12 +145,14 @@ class SecurityAwareContextManagerImpl implements CloseableContextManager {
 			m_environment = environment;
 		}
 		
+		@Override
 		public Object run() throws Exception {
 			return m_contextManager.newInitialDirContext(m_environment);
 		}
 	}
 	
 	private class CloseContextManagerAction implements PrivilegedExceptionAction {
+		@Override
 		public Object run() throws Exception {
 			m_contextManager.close();
 			return null;

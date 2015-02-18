@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 SAP AG.
+ * Copyright (c) 2013, 2015 SAP AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution.
@@ -29,33 +29,40 @@ public class LdapContextWrapperImpl extends DirContextWrapperImpl implements Lda
 		m_ldapContext = ldapContext;
 	}
 
+	@Override
 	public ExtendedResponse extendedOperation(ExtendedRequest request)
 			throws NamingException {
 		return m_ldapContext.extendedOperation(request);
 	}
 
+	@Override
 	public LdapContext newInstance(Control[] requestControls)
 			throws NamingException {
 		return m_ldapContext.newInstance(requestControls);
 	}
 
+	@Override
 	public void reconnect(Control[] connCtls) throws NamingException {
 		m_ldapContext.reconnect(connCtls);
 	}
 
+	@Override
 	public Control[] getConnectControls() throws NamingException {
 		return m_ldapContext.getConnectControls();
 	}
 
+	@Override
 	public void setRequestControls(Control[] requestControls)
 			throws NamingException {
 		m_ldapContext.setRequestControls(requestControls);
 	}
 
+	@Override
 	public Control[] getRequestControls() throws NamingException {
 		return m_ldapContext.getRequestControls();
 	}
 
+	@Override
 	public Control[] getResponseControls() throws NamingException {
 		return m_ldapContext.getResponseControls();
 	}

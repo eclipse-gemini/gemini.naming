@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Oracle.
+ * Copyright (c) 2010, 2015 Oracle.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution. 
@@ -40,6 +40,7 @@ class ContextManagerServiceFactoryImpl implements ServiceFactory {
 		m_implBundleContext = implBundleContext;
 	}
 	
+	@Override
 	public Object getService(Bundle bundle, ServiceRegistration registration) {
 		CloseableContextManager contextManager = 
 			createContextManager(bundle, m_implBundleContext);
@@ -50,6 +51,7 @@ class ContextManagerServiceFactoryImpl implements ServiceFactory {
 
 	
 
+	@Override
 	public void ungetService(Bundle bundle, ServiceRegistration registration, Object service) {
 		closeContextManager(bundle);
 	}
@@ -79,6 +81,7 @@ class ContextManagerServiceFactoryImpl implements ServiceFactory {
 	
 	
 	private class ContextManagerBundleListener implements SynchronousBundleListener {
+		@Override
 		public void bundleChanged(BundleEvent event) {
 			if(event.getType() == BundleEvent.STOPPED) {
 				if(m_mapOfManagers.containsKey(event.getBundle())) {

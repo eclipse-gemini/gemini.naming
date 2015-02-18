@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Oracle.
+ * Copyright (c) 2010, 2015 Oracle.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution. 
@@ -72,6 +72,7 @@ class ServiceUtils {
 	static ServiceReference[] sortServiceReferences(
 			final ServiceReference[] serviceReferences) {
 		Arrays.sort(serviceReferences, new Comparator() {
+			@Override
 			public int compare(Object objectOne, Object objectTwo) {
 				ServiceReference serviceReferenceOne = (ServiceReference) objectOne;
 				ServiceReference serviceReferenceTwo = (ServiceReference) objectTwo;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Oracle.
+ * Copyright (c) 2010, 2015 Oracle.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution. 
@@ -43,18 +43,21 @@ class SecurityAwareProviderAdminImpl implements CloseableProviderAdmin {
 		m_closeableProviderAdmin = closeableProviderAdmin;
 	}
 		
+	@Override
 	public Object getObjectInstance(Object refInfo, Name name, Context context, Map environment) throws Exception {
 		PrivilegedExceptionAction action = 
 			new GetObjectInstanceAction(refInfo, name, context, environment);
 		return invokePrivilegedAction(action);
 	}
 
+	@Override
 	public Object getObjectInstance(Object refInfo, Name name, Context context, Map environment, Attributes attributes) throws Exception {
 		PrivilegedExceptionAction action = 
 			new GetObjectInstanceActionWithAttributes(refInfo, name, context, environment, attributes);
 		return invokePrivilegedAction(action);
 	}
 	
+	@Override
 	public void close() {
 		try {
 			SecurityUtils.invokePrivilegedActionNoReturn(new CloseAction());
@@ -84,6 +87,7 @@ class SecurityAwareProviderAdminImpl implements CloseableProviderAdmin {
 			m_environment = environment;
 		}
 		
+		@Override
 		public Object run() throws Exception {
 			return m_closeableProviderAdmin.getObjectInstance(m_refInfo, 
 					                                     m_name, 
@@ -102,6 +106,7 @@ class SecurityAwareProviderAdminImpl implements CloseableProviderAdmin {
 		}
 		
 		
+		@Override
 		public Object run() throws Exception {
 			return m_closeableProviderAdmin.getObjectInstance(m_refInfo, 
 					                                     m_name, 
@@ -114,6 +119,7 @@ class SecurityAwareProviderAdminImpl implements CloseableProviderAdmin {
 	
 	
 	private class CloseAction implements PrivilegedExceptionAction {
+		@Override
 		public Object run() throws Exception {
 			m_closeableProviderAdmin.close();
 			return null;

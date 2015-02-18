@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Oracle.
+ * Copyright (c) 2010, 2015 Oracle.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution. 
@@ -49,6 +49,7 @@ class OSGiURLContextFactory implements ObjectFactory {
 		m_bundleContext = bundleContext;
 	}
 
+	@Override
 	public Object getObjectInstance(Object obj, Name name, Context nameCtx, Hashtable environment) throws Exception {
 		return new OSGiURLContext(m_bundleContext);
 	}
@@ -70,6 +71,7 @@ class OSGiURLContextFactory implements ObjectFactory {
 		}
 		
 
+		@Override
 		public Object lookup(String name) throws NamingException {
 			String osgiURL = name;
 			try {

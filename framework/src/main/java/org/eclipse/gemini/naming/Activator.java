@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 Oracle.
+ * Copyright (c) 2010, 2015 Oracle.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution. 
@@ -67,6 +67,7 @@ public class Activator implements BundleActivator {
 	 * org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext
 	 * )
 	 */
+	@Override
 	public void start(BundleContext context) throws Exception {
 		logger.info("Initializing Gemini Naming Factory Manager Bundle");
 		
@@ -102,6 +103,7 @@ public class Activator implements BundleActivator {
 	 * @see
 	 * org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
 	 */
+	@Override
 	public void stop(BundleContext context) throws Exception {
 		logger.info("Shutting down Gemini Naming Factory Manager Bundle");
 		
@@ -114,8 +116,7 @@ public class Activator implements BundleActivator {
 		// unregister all the JNDI services registered by this Activator
 		Iterator<ServiceRegistration> iterator = m_listOfServiceRegistrations.iterator();
 		while(iterator.hasNext()) {
-			ServiceRegistration serviceRegistration = 
-				(ServiceRegistration)iterator.next();
+			ServiceRegistration serviceRegistration = iterator.next();
 			serviceRegistration.unregister();
 		}
 		

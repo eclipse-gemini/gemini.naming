@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Oracle.
+ * Copyright (c) 2010, 2015 Oracle.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution. 
@@ -57,20 +57,24 @@ abstract class ServiceBasedNamingEnumeration implements NamingEnumeration {
 		}
 	}
 
+	@Override
 	public void close() throws NamingException {
 		m_isOpen = false;
 	}
 
+	@Override
 	public boolean hasMore() throws NamingException {
 		checkIsOpen();
 		return (isIndexValid());
 	}
 
+	@Override
 	public Object next() throws NamingException {
 		checkIsOpen();
 		return internalNextElement();
 	}
 
+	@Override
 	public boolean hasMoreElements() {
 		if(!m_isOpen) {
 			return false;
@@ -80,6 +84,7 @@ abstract class ServiceBasedNamingEnumeration implements NamingEnumeration {
 		
 	}
 
+	@Override
 	public Object nextElement() {
 		return internalNextElement();
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Oracle.
+ * Copyright (c) 2010, 2015 Oracle.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution. 
@@ -50,6 +50,7 @@ class ContextManagerImpl implements CloseableContextManager {
 	}
 
 
+	@Override
 	public Context newInitialContext() throws NamingException {
 		synchronized (m_builder) {
 			final Context initialContext = createNewInitialContext(new Hashtable());
@@ -58,6 +59,7 @@ class ContextManagerImpl implements CloseableContextManager {
 		}
 	}
 
+	@Override
 	public Context newInitialContext(Map environment)
 			throws NamingException {
 		synchronized (m_builder) {
@@ -67,6 +69,7 @@ class ContextManagerImpl implements CloseableContextManager {
 		}
 	}
 
+	@Override
 	public DirContext newInitialDirContext() throws NamingException {
 		synchronized (m_builder) {
 			Context contextToReturn = createNewInitialContext(new Hashtable());
@@ -79,6 +82,7 @@ class ContextManagerImpl implements CloseableContextManager {
 		throw new NoInitialContextException("DirContext could not be created.  The matching InitialContextFactory did not create a matching type."); 
 	}
 
+	@Override
 	public DirContext newInitialDirContext(Map environment) throws NamingException {
 		synchronized (m_builder) {
 			Context context = createNewInitialContext(environment);
@@ -95,6 +99,7 @@ class ContextManagerImpl implements CloseableContextManager {
 	 * Closes all the known context implementations that have 
 	 * been provided by this service.  
 	 */
+	@Override
 	public void close() {
 		// close known Context implementations
 		synchronized (m_listOfContexts) {

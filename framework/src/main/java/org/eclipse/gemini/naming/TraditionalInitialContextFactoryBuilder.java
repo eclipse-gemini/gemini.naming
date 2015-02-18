@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2013 Oracle.
+ * Copyright (c) 2010, 2015 Oracle.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution. 
@@ -48,6 +48,7 @@ class TraditionalInitialContextFactoryBuilder implements InitialContextFactoryBu
 	public TraditionalInitialContextFactoryBuilder() {
 	}
 	
+	@Override
 	public InitialContextFactory createInitialContextFactory(Hashtable environment) throws NamingException {
 		return new TraditionalInitialContextFactory();
 	}
@@ -66,6 +67,7 @@ class TraditionalInitialContextFactoryBuilder implements InitialContextFactoryBu
 	 */
 	private static class TraditionalInitialContextFactory implements InitialContextFactory {
 
+		@Override
 		public Context getInitialContext(Hashtable environment) throws NamingException {
 			// try to find BundleContext, assuming a call to the InitialContext constructor
 			BundleContext clientBundleContext = 
@@ -133,6 +135,7 @@ class TraditionalInitialContextFactoryBuilder implements InitialContextFactoryBu
 			
 		}
 		
+		@Override
 		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 			if(method.getName().equals("close")) {
 				// clean up reference to JNDIContextManager

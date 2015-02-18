@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Oracle.
+ * Copyright (c) 2010, 2015 Oracle.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution. 
@@ -36,6 +36,7 @@ class ProviderAdminImpl implements CloseableProviderAdmin {
 			new OSGiInitialContextFactoryBuilder(bundleContext, bundleContext);
 	}
 
+	@Override
 	public Object getObjectInstance(Object refInfo, Name name, Context context, Map environment) throws NamingException {
 		synchronized (m_objectFactoryBuilder) {
 			Hashtable jndiEnvironment = new Hashtable();
@@ -56,6 +57,7 @@ class ProviderAdminImpl implements CloseableProviderAdmin {
 		}
 	}
 
+	@Override
 	public Object getObjectInstance(Object refInfo, Name name, Context context, Map environment, Attributes attributes) throws NamingException {
 		synchronized (m_objectFactoryBuilder) {
 			Hashtable jndiEnvironment = new Hashtable();
@@ -77,6 +79,7 @@ class ProviderAdminImpl implements CloseableProviderAdmin {
 		}
 	}
 	
+	@Override
 	public void close() {
 		synchronized (m_objectFactoryBuilder) {
 			m_objectFactoryBuilder.close();

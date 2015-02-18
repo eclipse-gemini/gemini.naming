@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Oracle.
+ * Copyright (c) 2010, 2015 Oracle.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution. 
@@ -59,6 +59,7 @@ class ServiceInvocationHandler implements InvocationHandler {
 	}
 	
 	
+	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		return SecurityUtils.invokePrivilegedAction(new ServiceInvokeAction(method, args));
 	}
@@ -103,6 +104,7 @@ class ServiceInvocationHandler implements InvocationHandler {
 	
 	
 	
+	@Override
 	protected void finalize() throws Throwable {
 		close();
 	}
@@ -168,6 +170,7 @@ class ServiceInvocationHandler implements InvocationHandler {
 			super(method, args);
 		}
 
+		@Override
 		public Object invokeMethod(Method method, Object[] args) throws Throwable {
 			return handleMethodInvocation(method, args);
 		}
