@@ -60,7 +60,8 @@ class ServiceAwareContextFactory {
 		private InitialContextFactory m_factory;
 		private Context m_context;
 		private final FactoryManager m_manager;
-		private boolean m_isOpen;
+		private final Object lock = new Object();
+		private volatile boolean m_isOpen;
 		
 		DefaultServiceAwareInvocationHandler(InitialContextFactory factory, Context context, FactoryManager manager) {
 			m_factory = factory;
@@ -71,52 +72,50 @@ class ServiceAwareContextFactory {
 		
 		@Override
 		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-			synchronized (this) {
-				synchronized (m_manager) {
-					try {
-						return invokeContextMethod(method, args);
-					}
-					catch (Exception exception) {
-						if(exception instanceof NamingException) {
-							throw (NamingException)exception;
-						} 
-						
-						logger.log(Level.FINE, 
-								   "Exception occurred during a doPrivileged call",
-								   exception);
-						// if the cause was not a NamingException, wrap the 
-						// cause in NamingException and throw back to caller
-						NamingException namingException = new NamingException("Exception occured during a Context method invocation");
-						namingException.setRootCause(exception);
-						throw namingException;
-					}
+			try {
+				return invokeContextMethod(method, args);
+			}
+			catch (Exception exception) {
+				if(exception instanceof NamingException) {
+					throw (NamingException)exception;
 				}
+
+				if (logger.isLoggable(Level.FINE)) {
+					logger.log(Level.FINE,
+						"Exception occurred during a doPrivileged call",
+						exception);
+				}
+				// if the cause was not a NamingException, wrap the
+				// cause in NamingException and throw back to caller
+				NamingException namingException = new NamingException("Exception occured during a Context method invocation");
+				namingException.setRootCause(exception);
+				throw namingException;
 			}
 		}
 
 		private Object invokeContextMethod(Method method, Object[] args) throws Throwable {
 			if (m_isOpen) {
-				if (isFactoryServiceActive()
-						|| method.getName().equals("close")) {
-
-					if (method.getName().equals("close")) {
-						m_isOpen = false;
+				synchronized (lock) {
+					if (m_isOpen) {
+						if (!method.getName().equals("close")) {
+							synchronized (m_manager) {
+								if (!isFactoryServiceActive()) {
+									SecurityUtils.invokePrivilegedActionNoReturn(new ObtainFactory());
+								}
+							}
+						} else {
+							// if context is already closed, do not try to
+							// rebind the backing service
+							// simply forward the call to the underlying context implementation
+							m_isOpen = false;
+						}
 					}
-
-					return ReflectionUtils.invokeMethodOnContext(method, m_context, args);
 				}
-				else {
-					return SecurityUtils.invokePrivilegedAction(new ObtainFactoryAndInvokeAction(method, args));
-				}
-			} else {
-				// if context is already closed, do not try to 
-				// rebind the backing service
-				// simply forward the call to the underlying context implementation
-				return ReflectionUtils.invokeMethodOnContext(method, m_context, args);
 			}
+			return ReflectionUtils.invokeMethodOnContext(method, m_context, args);
 		}
 
-		private Object obtainNewFactoryAndInvoke(Method method, Object[] args) throws NamingException, Throwable, NoInitialContextException {
+		private void obtainNewFactory() throws NamingException, Throwable, NoInitialContextException {
 			// make copy of existing context's environment
 			Hashtable newContextEnvironment = new Hashtable();
 			if (m_context.getEnvironment() != null) {
@@ -133,7 +132,7 @@ class ServiceAwareContextFactory {
 							.getInitialContext(newContextEnvironment);
 					if (newInternalContext != null) {
 						m_context = newInternalContext;
-						return ReflectionUtils.invokeMethodOnContext(method, m_context, args);
+						return;
 					}
 				}
 			}
@@ -164,20 +163,13 @@ class ServiceAwareContextFactory {
 			}
 		}
 	
-		private class ObtainFactoryAndInvokeAction implements PrivilegedExceptionAction {
-
-			private final Method m_method;
-			private final Object[] m_args;
-			
-			ObtainFactoryAndInvokeAction(Method method, Object[] args) {
-				m_method = method;
-				m_args = args;
-			}
+		private class ObtainFactory implements PrivilegedExceptionAction {
 			
 			@Override
 			public Object run() throws Exception {
 				try {
-					return obtainNewFactoryAndInvoke(m_method, m_args);
+					obtainNewFactory();
+					return null;
 				} catch (Throwable e) {
 					if(e instanceof NamingException) {
 						throw (NamingException)e;
