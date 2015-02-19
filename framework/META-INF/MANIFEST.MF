@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Gemini Naming
 Bundle-SymbolicName: org.eclipse.gemini.naming
 Bundle-Vendor: Eclipse.org
-Bundle-Version: 1.0.5.qualifier
+Bundle-Version: 1.0.6.qualifier
 Bundle-Activator: org.eclipse.gemini.naming.Activator
 Bundle-Description: Gemini Naming bundle
 Bundle-Category: jndi
